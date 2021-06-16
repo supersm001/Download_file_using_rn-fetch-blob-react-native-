@@ -1,0 +1,41 @@
+ async function download(url, name) {
+    if (Platform.OS === 'android') {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+        {
+          title: 'File Download',
+          message: 'App needs access Storage Permissions to Download Files',
+        },
+      );
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        // Permission Granted
+        // ToastAndroid.show('Storage Access Granted', ToastAndroid.SHORT);
+      } else {
+        // Permission Denied
+        ToastAndroid.show('Storage Permission Denied', ToastAndroid.SHORT);
+      }
+    } else {
+      alert('error');
+    }
+    ToastAndroid.show('Downloading...', ToastAndroid.SHORT);
+    const {config, fs} = RNFetchBlob;
+    let PictureDir = fs.dirs.PictureDir;
+    let options = {
+      fileCache: true,
+      addAndroidDownloads: {
+        useDownloadManager: true,
+        notification: true,
+        path: PictureDir + '/' + name,
+        description: 'downloading_file',
+      },
+    };
+    config(options)
+      .fetch('GET', url)
+      .then((res) => {
+        if (res.data) {
+          ToastAndroid.show('Downloaded', ToastAndroid.SHORT);
+        } else {
+          ToastAndroid.show('Download Failed', ToastAndroid.SHORT);
+        }
+      });
+  }
